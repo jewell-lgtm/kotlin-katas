@@ -1,4 +1,4 @@
-package squaresInRectangle
+package codewars.squaresInRectangle
 
 import assertEquals
 
