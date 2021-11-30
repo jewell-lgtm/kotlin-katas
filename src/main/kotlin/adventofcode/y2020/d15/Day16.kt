@@ -4,41 +4,60 @@ import assertEquals
 import java.io.File
 
 fun main() {
+    val exampleInput1 = parseInput(exampleInput)
+    println(assertEquals(listOf(4, 55, 12), invalidFields(exampleInput1.fields, exampleInput1.tickets)))
 
-    val classField = Field("class", 1..3, 5..7)
-    println(assertEquals(listOf(true, true, false, true), listOf(1, 3, 4, 5).map { classField.isValid(it) }))
+    val puzzle = parseInput(puzzleInput)
+    println("The answer to part one is: ${invalidFields(puzzle.fields, puzzle.tickets).sum()}")
 
-    val exampleFields = listOf(
-        Triple("class", 1..3, 5..7),
-        Triple("row", 6..11, 33..44),
-        Triple("seat", 13..40, 45..50),
-    ).map { (a, b, c) -> Field(a, b, c) }
+    val validTickets = puzzle.tickets.filter { it.isValid(puzzle.fields) }
+    println("${validTickets.size} of ${puzzle.tickets.size} tickets are valid")
 
-    val exampleTickets = listOf(
-        listOf(7, 3, 47),
-        listOf(40, 4, 50),
-        listOf(55, 2, 20),
-        listOf(38, 6, 12),
-    ).map { NearbyTicket(it) }
+    val map = solveFields(validTickets, puzzle.fields)
+    val dep = map.filter { it.value.name.startsWith("departure") }.keys
+    println(assertEquals(6, dep.size))
 
-    val exampleMyTicket = MyTicket(listOf(7, 1, 14))
+    val myDeparts = puzzle.myTicket.fieldsAt(dep)
 
-    println(assertEquals(emptyList(), invalidFields(exampleFields, listOf(NearbyTicket(listOf(7, 3, 47))))))
-    println(assertEquals(listOf(4, 55, 12), invalidFields(exampleFields, exampleTickets)))
+    println("myDeps $myDeparts")
 
-    println(assertEquals(PuzzleInput(exampleFields, exampleMyTicket, exampleTickets), parseInput(exampleInput)))
-    println(assertEquals(listOf(4, 55, 12), invalidFields(parseInput(exampleInput))))
-
-    println("The answer to part one is: ${invalidFields(parseInput(input)).sum()}")
-
+    // gets to here but the answer is wrong
+    println("The answer to part 2 is ${myDeparts.product()}")
 
 }
 
-fun invalidFields(puzzle: PuzzleInput): List<Int> {
-    return invalidFields(puzzle.fields, puzzle.tickets)
+private fun  List<Int>.product(): Int = foldRight(1) { i, acc -> acc * i }
+
+
+fun solveFields(tickets: List<NearbyTicket>, fields: Set<Field>): Map<Int, Field> {
+    val possibleAtPos = (0 until tickets.first().list.size).associateWith { position ->
+        fields.filter { field ->
+
+            field.isValid(tickets.map { it.list[position] })
+        }.toMutableSet()
+    }.toMutableMap()
+
+    val result = mutableMapOf<Int, Field>()
+    while (possibleAtPos.isNotEmpty()) {
+        val hasOne = possibleAtPos.filter { it.value.size == 1 }
+        hasOne.forEach {
+            possibleAtPos.remove(it.key)
+            val field = it.value.first()
+            result[it.key] = field
+            possibleAtPos.forEach { possibilities ->
+                possibilities.value.remove(field)
+            }
+        }
+    }
+    return result
 }
 
-fun invalidFields(fields: List<Field>, tickets: List<NearbyTicket>): List<Int> {
+
+fun validAtPos(pos: Int, tickets: List<NearbyTicket>, fields: Set<Field>): Set<Field> {
+    return fields.filter { field -> field.isValid(tickets.map { ticket -> ticket.list[pos] }) }.toSet()
+}
+
+fun invalidFields(fields: Set<Field>, tickets: List<NearbyTicket>): List<Int> {
     val allValues = tickets.flatMap { it.list }
 
     return allValues.filter { value -> fields.none { field -> field.isValid(value) } }
@@ -47,28 +66,35 @@ fun invalidFields(fields: List<Field>, tickets: List<NearbyTicket>): List<Int> {
 
 data class Field(val name: String, val rangeA: IntRange, val rangeB: IntRange) {
     companion object {
-        private val regex = """^(\w+): (\d+)-(\d+) or (\d+)-(\d+)""".toRegex()
+        private val regex = """^(.+): (\d+)-(\d+) or (\d+)-(\d+)""".toRegex()
         fun maybeCreate(str: String): Field? =
             regex.find(str)?.destructured?.let { (name, startA, endA, startB, endB) ->
                 Field(name, startA.toInt()..endA.toInt(), startB.toInt()..endB.toInt())
             }
     }
 
-    fun isValid(i: Int): Boolean = rangeA.contains(i) || rangeB.contains(i)
+    fun isValid(i: Int): Boolean = rangeA.contains(i) or rangeB.contains(i)
+    fun isValid(list: List<Int>): Boolean = list.all { this.isValid(it) }
 }
 
 data class MyTicket(val list: List<Int>) {
+    fun fieldsAt(dep: Set<Int>): List<Int> =
+        dep.map { list[it] }
+
+
     constructor(str: String) : this(str.split(",").map { it.toInt() })
 }
 
 data class NearbyTicket(val list: List<Int>) {
+    fun isValid(fields: Set<Field>) = list.all { item -> fields.any { field -> field.isValid(item) } }
+
     constructor(str: String) : this(str.split(",").map { it.toInt() })
 }
 
-data class PuzzleInput(val fields: List<Field>, val myTicket: MyTicket, val tickets: List<NearbyTicket>)
+data class PuzzleInput(val fields: Set<Field>, val myTicket: MyTicket, val tickets: List<NearbyTicket>)
 
 fun parseInput(input: List<String>): PuzzleInput {
-    val fields = input.mapNotNull { Field.maybeCreate(it) }
+    val fields = input.mapNotNull { Field.maybeCreate(it) }.toSet()
 
     val myTicketInput = input[input.indexOf("your ticket:") + 1]
     val myTicket = MyTicket(myTicketInput)
@@ -78,6 +104,8 @@ fun parseInput(input: List<String>): PuzzleInput {
 
     return PuzzleInput(fields, myTicket, tickets)
 }
+
+
 
 val exampleInput = """
     class: 1-3 or 5-7
@@ -94,4 +122,18 @@ val exampleInput = """
     38,6,12
 """.trimIndent().split("\n")
 
-val input = File(System.getProperty("user.dir")+"/aoc-input/day16.txt").readLines()
+val exampleInputPart2 = """
+    class: 0-1 or 4-19
+    row: 0-5 or 8-19
+    seat: 0-13 or 16-19
+
+    your ticket:
+    11,12,13
+
+    nearby tickets:
+    3,9,18
+    15,1,5
+    5,14,9
+""".trimIndent().split("\n")
+
+val puzzleInput = File("aoc-input/day16.txt").readLines()
