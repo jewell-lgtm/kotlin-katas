@@ -7,4 +7,4 @@ fun main() {
 
 }
 
-val input = getInput("Day01")
+private val input = getInput("Day01")
