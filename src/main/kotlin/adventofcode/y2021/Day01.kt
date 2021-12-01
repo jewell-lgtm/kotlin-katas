@@ -15,17 +15,21 @@ fun main() {
 }
 
 private fun largerThanPrevious(input: List<Int>, size: Int = 1): Int {
-    val windows = input.mapIndexedNotNull { index, _ ->
-        if (index <= input.size - size) {
-            input.subList(index, index + size)
-        } else {
-            null
-        }
-    }
+    val windows = input.window(size)
 
     return windows.drop(1).foldRightIndexed(0) { index, window, acc ->
         val prev = windows.getOrNull(index - 1)?.sum() ?: Int.MAX_VALUE
         if (window.sum() > prev) acc + 1 else acc
+    }
+}
+
+private fun <E> List<E>.window(
+    size: Int
+) = mapIndexedNotNull { index, _ ->
+    if (index <= this.size - size) {
+        subList(index, index + size)
+    } else {
+        null
     }
 }
 
