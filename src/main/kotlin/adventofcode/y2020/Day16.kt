@@ -1,4 +1,4 @@
-package adventofcode.y2020.d15
+package adventofcode.y2020
 
 import assertEquals
 import java.io.File
@@ -29,7 +29,7 @@ fun main() {
 private fun  List<Int>.product(): Int = foldRight(1) { i, acc -> acc * i }
 
 
-fun solveFields(tickets: List<NearbyTicket>, fields: Set<Field>): Map<Int, Field> {
+private fun solveFields(tickets: List<NearbyTicket>, fields: Set<Field>): Map<Int, Field> {
     val possibleAtPos = (0 until tickets.first().list.size).associateWith { position ->
         fields.filter { field ->
 
@@ -53,18 +53,18 @@ fun solveFields(tickets: List<NearbyTicket>, fields: Set<Field>): Map<Int, Field
 }
 
 
-fun validAtPos(pos: Int, tickets: List<NearbyTicket>, fields: Set<Field>): Set<Field> {
+private fun validAtPos(pos: Int, tickets: List<NearbyTicket>, fields: Set<Field>): Set<Field> {
     return fields.filter { field -> field.isValid(tickets.map { ticket -> ticket.list[pos] }) }.toSet()
 }
 
-fun invalidFields(fields: Set<Field>, tickets: List<NearbyTicket>): List<Int> {
+private fun invalidFields(fields: Set<Field>, tickets: List<NearbyTicket>): List<Int> {
     val allValues = tickets.flatMap { it.list }
 
     return allValues.filter { value -> fields.none { field -> field.isValid(value) } }
 }
 
 
-data class Field(val name: String, val rangeA: IntRange, val rangeB: IntRange) {
+private data class Field(val name: String, val rangeA: IntRange, val rangeB: IntRange) {
     companion object {
         private val regex = """^(.+): (\d+)-(\d+) or (\d+)-(\d+)""".toRegex()
         fun maybeCreate(str: String): Field? =
@@ -77,7 +77,7 @@ data class Field(val name: String, val rangeA: IntRange, val rangeB: IntRange) {
     fun isValid(list: List<Int>): Boolean = list.all { this.isValid(it) }
 }
 
-data class MyTicket(val list: List<Int>) {
+private data class MyTicket(val list: List<Int>) {
     fun fieldsAt(dep: Set<Int>): List<Int> =
         dep.map { list[it] }
 
@@ -85,15 +85,15 @@ data class MyTicket(val list: List<Int>) {
     constructor(str: String) : this(str.split(",").map { it.toInt() })
 }
 
-data class NearbyTicket(val list: List<Int>) {
+private data class NearbyTicket(val list: List<Int>) {
     fun isValid(fields: Set<Field>) = list.all { item -> fields.any { field -> field.isValid(item) } }
 
     constructor(str: String) : this(str.split(",").map { it.toInt() })
 }
 
-data class PuzzleInput(val fields: Set<Field>, val myTicket: MyTicket, val tickets: List<NearbyTicket>)
+private data class PuzzleInput(val fields: Set<Field>, val myTicket: MyTicket, val tickets: List<NearbyTicket>)
 
-fun parseInput(input: List<String>): PuzzleInput {
+private fun parseInput(input: List<String>): PuzzleInput {
     val fields = input.mapNotNull { Field.maybeCreate(it) }.toSet()
 
     val myTicketInput = input[input.indexOf("your ticket:") + 1]
@@ -107,7 +107,7 @@ fun parseInput(input: List<String>): PuzzleInput {
 
 
 
-val exampleInput = """
+private val exampleInput = """
     class: 1-3 or 5-7
     row: 6-11 or 33-44
     seat: 13-40 or 45-50
@@ -122,7 +122,7 @@ val exampleInput = """
     38,6,12
 """.trimIndent().split("\n")
 
-val exampleInputPart2 = """
+private val exampleInputPart2 = """
     class: 0-1 or 4-19
     row: 0-5 or 8-19
     seat: 0-13 or 16-19
@@ -136,4 +136,4 @@ val exampleInputPart2 = """
     5,14,9
 """.trimIndent().split("\n")
 
-val puzzleInput = File("aoc-input/day16.txt").readLines()
+private val puzzleInput = File("aoc-input/day16.txt").readLines()

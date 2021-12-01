@@ -1,25 +1,27 @@
 package adventofcode.y2021
 
 fun main() {
-    val exampleCount = largerThanPrevious(exampleInput)
-    println("The example input is $exampleCount")
+    val day01 = Day01()
 
-    val count = largerThanPrevious(input)
-    println("Part one $count")
-
-    val ex2Count = largerThanPrevious(exampleInput2, 3)
-    println("Part2 example $ex2Count")
-
-    val part2Count = largerThanPrevious(input, 3)
-    println("Part 2 is $part2Count")
+    println("Part one example ${day01.exampleCount()}")
+    println("Part one ${day01.part1Count()}")
+    println("Part two example ${day01.example2Count()}")
+    println("Part two ${day01.part2Count()}")
 }
 
-private fun largerThanPrevious(input: List<Int>, size: Int = 1): Int {
-    val windows = input.window(size)
+class Day01 {
+    fun exampleCount(): Int = largerThanPrevious(exampleInput)
+    fun part1Count(): Int = largerThanPrevious(input)
+    fun example2Count(): Int = largerThanPrevious(exampleInput2, 3)
+    fun part2Count(): Int = largerThanPrevious(exampleInput2, 3)
 
-    return windows.drop(1).foldRightIndexed(0) { index, window, acc ->
-        val prev = windows.getOrNull(index - 1)?.sum() ?: Int.MAX_VALUE
-        if (window.sum() > prev) acc + 1 else acc
+    private fun largerThanPrevious(input: List<Int>, size: Int = 1): Int {
+        val windows = input.window(size)
+
+        return windows.drop(1).foldRightIndexed(0) { index, window, acc ->
+            val prev = windows.getOrNull(index - 1)?.sum() ?: Int.MAX_VALUE
+            if (window.sum() > prev) acc + 1 else acc
+        }
     }
 }
 
