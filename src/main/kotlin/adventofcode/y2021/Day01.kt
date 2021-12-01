@@ -1,30 +1,23 @@
 package adventofcode.y2021
 
 fun main() {
-    val exampleInput = PuzzleInput(exampleInput.map { it.toInt() })
     val exampleCount = largerThanPrevious(exampleInput)
     println("The example input is $exampleCount")
 
-
-    val input = PuzzleInput(input.map { it.toInt() })
     val count = largerThanPrevious(input)
     println("Part one $count")
-    
-    
-    val example2Input = PuzzleInput(exampleInput2.map { it.toInt() })
-    val ex2Count = largerThanPrevious(example2Input, 3)
 
+    val ex2Count = largerThanPrevious(exampleInput2, 3)
     println("Part2 example $ex2Count")
 
     val part2Count = largerThanPrevious(input, 3)
-
     println("Part 2 is $part2Count")
 }
 
-private fun largerThanPrevious(input: PuzzleInput, size: Int = 1): Int {
-    val windows = input.lines.mapIndexedNotNull  { index, _ ->  
-        if (index <= input.lines.size - size) {
-            input.lines.subList(index, index + size)
+private fun largerThanPrevious(input: List<Int>, size: Int = 1): Int {
+    val windows = input.mapIndexedNotNull  { index, _ ->
+        if (index <= input.size - size) {
+            input.subList(index, index + size)
         } else {
             null
         }
@@ -47,7 +40,7 @@ private fun largerThanPrevious(input: PuzzleInput, size: Int = 1): Int {
 }
 
 
-private val input = getInput("Day01")
+private val input = getIntInput("Day01")
 
 private val exampleInput = """199
 200
@@ -58,7 +51,7 @@ private val exampleInput = """199
 240
 269
 260
-263""".split("\n")
+263""".split("\n").map { it.toInt() }
 
 private val exampleInput2 = """199
 200
@@ -69,9 +62,7 @@ private val exampleInput2 = """199
 240
 269
 260
-263""".split("\n")
-
-private data class PuzzleInput(val lines: List<Int>)
+263""".split("\n").map { it.toInt() }
 
 
 
