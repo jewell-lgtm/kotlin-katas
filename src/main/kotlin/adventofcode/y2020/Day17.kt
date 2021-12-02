@@ -67,7 +67,7 @@ class Day17 {
     fun cubes4DFromStrings(input: List<String>) =
         input.flatMapIndexed { indexY: Int, str: String ->
             str.mapIndexedNotNull { indexX, c ->
-                if (c == '#') Cube4D(indexX, indexY, 0, 0) else null
+                c.takeIf { it == '#' }?.let { Cube4D(indexX, indexY, 0, 0) }
             }
         }.toSet()
 
