@@ -73,9 +73,11 @@ class Day17 {
 
     tailrec fun afterCycles(activeCubes: Set<Cube>, remainingCycles: Int): Set<Cube> {
         if (remainingCycles == 0) return activeCubes
-        val nextCubes = activeCubes.flatMap { it.neighbors() }.toSet().filter { it.willBeActive(activeCubes) }.toSet()
-        return afterCycles(nextCubes, remainingCycles - 1)
+        return afterCycles(activeCubes.nextSet(), remainingCycles - 1)
     }
+
+    private fun Set<Cube>.nextSet() =
+        flatMap { it.neighbors() }.toSet().filter { it.willBeActive(this) }.toSet()
 }
 
 
