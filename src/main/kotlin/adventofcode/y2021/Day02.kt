@@ -7,23 +7,24 @@ fun main() {
     println("Part 1 gives position ${day02.part1Position()} with product ${day02.part1Position().product()}")
     println("Example 2 gives position ${day02.example2Position()} with product ${day02.example2Position().product()}")
     println("Part 2 gives position ${day02.part2Position()} with product ${day02.part2Position().product()}")
-
-
-
 }
 
 class Day02 {
-    fun example1Position() = move2D(parseInput(exampleInput1), Position2D(0, 0))
-    fun part1Position() = move2D(parseInput(puzzleInput), Position2D(0, 0))
-    fun example2Position() = moveAim(parseInput(exampleInput2), PositionAim(0, 0, 0))
-    fun part2Position() = moveAim(parseInput(puzzleInput), PositionAim(0, 0, 0))
+    fun example1Position() = move(parseInput(exampleInput1), Position2D(0, 0))
+    fun part1Position() = move(parseInput(puzzleInput), Position2D(0, 0))
+    fun example2Position() = move(parseInput(exampleInput2), PositionAim(0, 0, 0))
+    fun part2Position() = move(parseInput(puzzleInput), PositionAim(0, 0, 0))
 
     enum class Command {
         FORWARD, DOWN, UP
     }
 
-    data class Position2D(val h: Int, val depth: Int) {
-        operator fun plus(input: Pair<Command, Int>): Position2D {
+    interface Position {
+        operator fun plus(input: Pair<Command, Int>): Position
+        fun product(): Int
+    }
+    data class Position2D(val h: Int, val depth: Int): Position {
+        override operator fun plus(input: Pair<Command, Int>): Position2D {
             val (dir, amount) = input
             return when (dir) {
                 Command.FORWARD -> Position2D(h + amount, depth)
@@ -31,12 +32,11 @@ class Day02 {
                 Command.UP -> Position2D(h, (depth - amount).coerceAtLeast(0))
             }
         }
-
-        fun product(): Int  = h * depth
+        override fun product(): Int  = h * depth
     }
 
-    data class PositionAim(val h: Int, val depth: Int, val aim: Int) {
-        operator fun plus(input: Pair<Command, Int>): PositionAim {
+    data class PositionAim(val h: Int, val depth: Int, val aim: Int): Position {
+        override operator fun plus(input: Pair<Command, Int>): PositionAim {
             val (dir, amount) = input
             return when (dir) {
                 Command.FORWARD -> PositionAim(h + amount, depth + (aim * amount), aim)
@@ -45,19 +45,14 @@ class Day02 {
             }
         }
 
-        fun product(): Int  = h * depth
+        override fun product(): Int  = h * depth
     }
 
-    private tailrec fun move2D(input: List<Pair<Command, Int>>, position: Position2D): Position2D {
+    private tailrec fun move(input: List<Pair<Command, Int>>, position: Position): Position {
         if (input.isEmpty()) return position
-
-        return move2D(input.drop(1), position + input.first())
+        return move(input.drop(1), position + input.first())
     }
 
-    private tailrec fun moveAim(input: List<Pair<Command, Int>>, position: PositionAim): PositionAim {
-        if (input.isEmpty()) return position
-        return moveAim(input.drop(1), position + input.first())
-    }
 
     private val regex = """(.+) (\d+)""".toRegex()
     private fun parseInput(input: List<String>): List<Pair<Command, Int>> = input.map {
