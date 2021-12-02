@@ -23,7 +23,8 @@ class Day02 {
         operator fun plus(input: Pair<Command, Int>): Position
         fun product(): Int
     }
-    data class Position2D(val h: Int, val depth: Int): Position {
+
+    data class Position2D(val h: Int, val depth: Int) : Position {
         override operator fun plus(input: Pair<Command, Int>): Position2D {
             val (dir, amount) = input
             return when (dir) {
@@ -32,10 +33,11 @@ class Day02 {
                 Command.UP -> Position2D(h, (depth - amount).coerceAtLeast(0))
             }
         }
-        override fun product(): Int  = h * depth
+
+        override fun product(): Int = h * depth
     }
 
-    data class PositionAim(val h: Int, val depth: Int, val aim: Int): Position {
+    data class PositionAim(val h: Int, val depth: Int, val aim: Int) : Position {
         override operator fun plus(input: Pair<Command, Int>): PositionAim {
             val (dir, amount) = input
             return when (dir) {
@@ -45,13 +47,11 @@ class Day02 {
             }
         }
 
-        override fun product(): Int  = h * depth
+        override fun product(): Int = h * depth
     }
 
-    private tailrec fun move(input: List<Pair<Command, Int>>, position: Position): Position {
-        if (input.isEmpty()) return position
-        return move(input.drop(1), position + input.first())
-    }
+    private fun move(input: List<Pair<Command, Int>>, position: Position) =
+        input.foldRight(position) { pair, acc -> acc + pair }
 
 
     private val regex = """(.+) (\d+)""".toRegex()
