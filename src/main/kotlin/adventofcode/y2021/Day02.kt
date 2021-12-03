@@ -15,62 +15,60 @@ class Day02 {
     fun example2Position() = move(parseInput(exampleInput2), PositionAim(0, 0, 0))
     fun part2Position() = move(parseInput(puzzleInput), PositionAim(0, 0, 0))
 
-    enum class Command {
+    private fun parseInput(input: List<String>): List<Command> = input.map { str ->
+        str.split(" ")
+            .let { (command, amountStr) -> Command.fromStrings(command, amountStr) }
+    }
+
+    private fun move(input: List<Command>, position: Position) =
+        input.foldRight(position) { pair, acc -> acc + pair }
+
+    data class Command(val direction: Direction, val amount: Int) {
+        companion object {
+            fun fromStrings(dir: String, amount: String): Command {
+                val direction = when (dir) {
+                    "forward" -> Direction.FORWARD
+                    "down" -> Direction.DOWN
+                    "up" -> Direction.UP
+                    else -> error("Unrecognised command  $dir")
+                }
+                return Command(direction, amount.toInt())
+            }
+
+        }
+    }
+
+    enum class Direction {
         FORWARD, DOWN, UP
     }
 
     interface Position {
-        operator fun plus(input: Pair<Command, Int>): Position
+        operator fun plus(command: Command): Position
         fun product(): Int
     }
 
-    data class Position2D(val h: Int, val depth: Int) : Position {
-        override operator fun plus(input: Pair<Command, Int>): Position2D {
-            val (dir, amount) = input
-            return when (dir) {
-                Command.FORWARD -> Position2D(h + amount, depth)
-                Command.DOWN -> Position2D(h, depth + amount)
-                Command.UP -> Position2D(h, (depth - amount).coerceAtLeast(0))
+    private data class Position2D(val h: Int, val depth: Int) : Position {
+        override operator fun plus(command: Command): Position2D =
+            when (command.direction) {
+                Direction.FORWARD -> Position2D(h + command.amount, depth)
+                Direction.DOWN -> Position2D(h, depth + command.amount)
+                Direction.UP -> Position2D(h, (depth - command.amount).coerceAtLeast(0))
+            }
+
+        override fun product(): Int = h * depth
+    }
+
+    private data class PositionAim(val h: Int, val depth: Int, val aim: Int) : Position {
+        override operator fun plus(command: Command): PositionAim {
+            return when (command.direction) {
+                Direction.FORWARD -> PositionAim(h + command.amount, depth + (aim * command.amount), aim)
+                Direction.DOWN -> PositionAim(h, depth, aim + command.amount)
+                Direction.UP -> PositionAim(h, depth, aim - command.amount)
             }
         }
 
         override fun product(): Int = h * depth
     }
-
-    data class PositionAim(val h: Int, val depth: Int, val aim: Int) : Position {
-        override operator fun plus(input: Pair<Command, Int>): PositionAim {
-            val (dir, amount) = input
-            return when (dir) {
-                Command.FORWARD -> PositionAim(h + amount, depth + (aim * amount), aim)
-                Command.DOWN -> PositionAim(h, depth, aim + amount)
-                Command.UP -> PositionAim(h, depth, aim - amount)
-            }
-        }
-
-        override fun product(): Int = h * depth
-    }
-
-    private fun move(input: List<Pair<Command, Int>>, position: Position) =
-        input.foldRight(position) { pair, acc -> acc + pair }
-
-
-    private val regex = """(.+) (\d+)""".toRegex()
-    private fun parseInput(input: List<String>): List<Pair<Command, Int>> = input.map {
-        val (command, amountStr) = regex.find(it)?.destructured ?: error("no match for " + it)
-        Pair(
-            getCommand(command),
-            amountStr.toInt()
-        )
-    }
-
-    private fun getCommand(command: String): Command = when (command) {
-        "forward" -> Command.FORWARD
-        "down" -> Command.DOWN
-        "up" -> Command.UP
-        else -> error("Unrecognised command  $command")
-    }
-
-
 }
 
 private val puzzleInput = getInput("Day02")
