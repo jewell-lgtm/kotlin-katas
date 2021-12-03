@@ -13,5 +13,6 @@
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Haskell Tool Stack (2)" project-jdk-type="Haskell Tool Stack SDK" />
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_16" project-jdk-name="openjdk-16" project-jdk-type="JavaSDK" />
 </project>
