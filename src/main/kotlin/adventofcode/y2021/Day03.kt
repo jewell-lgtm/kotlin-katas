@@ -15,12 +15,14 @@ class Day03 {
     fun part2() = lifeSupport(puzzleInput)
 
     private fun powerConsumption(input: List<String>): Int {
-        val gamma = input.sideways().map { it -> (it.count { it == '0' } > it.count { it == '1' }) }.map { it.toChar() }
-            .joinToString("")
-            .toInt(2)
-        val epsilon =
+        val gammaStr =
             input.sideways().map { it -> (it.count { it == '0' } > it.count { it == '1' }) }.map { it.toChar() }
-                .joinToString("").complement().toInt(2)
+                .joinToString("")
+
+        val gamma = gammaStr
+            .toInt(2)
+
+        val epsilon = gammaStr.complement().toInt(2)
 
         return gamma * epsilon
 
