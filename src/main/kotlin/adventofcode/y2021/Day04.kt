@@ -5,20 +5,21 @@ fun main() {
 
     println("Example 1 ${day.example1()}")
     println("Part 1 ${day.puzzle1()}")
+    println("Example 2 ${day.example2()}")
+    println("Part 2 ${day.puzzle2()}")
 
 }
 
 class Day04 {
-    fun example1(): Int = getScore(parseInput(exampleInput))
-    fun puzzle1(): Int = getScore(parseInput(puzzleInput))
+    fun example1(): Int = getWinningScore(parseInput(exampleInput))
+    fun puzzle1(): Int = getWinningScore(parseInput(puzzleInput))
+    fun example2(): Int = getLosingScore(parseInput(exampleInput))
+    fun puzzle2(): Int = getLosingScore(parseInput(puzzleInput))
 
-    private fun getScore(input: Pair<List<Int>, List<Board>>): Int {
+    private fun getWinningScore(input: Pair<List<Int>, List<Board>>): Int {
         val (toCall, boards) = input
-        var i = 0
 
         tailrec fun getWinningBoard(lastCalled: Int, toCall: List<Int>): Pair<Int, Board> {
-            i += 1
-            if (i > 100) error("too many steps")
             boards.firstOrNull { it.hasWon() }?.let { return lastCalled to it }
             val call = toCall.first()
             boards.call(call)
@@ -26,10 +27,31 @@ class Day04 {
         }
 
         val (lastCalled, board) = getWinningBoard(-1, toCall)
+        return board.score(lastCalled)
+    }
+
+    private fun getLosingScore(input: Pair<List<Int>, List<Board>>): Int {
+        val (toCall, boards) = input
+
+        tailrec fun getLosingBoard(lastCalled: Int, toCall: List<Int>, boards: List<Board>): Pair<Int, Board> {
+            if (boards.size == 1) {
+                return if (!boards.first().hasWon()) {
+                    boards.call(toCall.first())
+                    getLosingBoard(toCall.first(), toCall.drop(1), boards )
+                } else {
+                    lastCalled to boards.first()
+                }
+            }
+
+            boards.call(toCall.first())
+            return getLosingBoard(toCall.first(), toCall.drop(1), boards.filter { !it.hasWon() })
+        }
 
 
+        val (lastCalled, board) = getLosingBoard(-1, toCall, boards)
 
         return board.score(lastCalled)
+
     }
 
     private fun parseInput(input: List<String>): Pair<List<Int>, List<Board>> {
