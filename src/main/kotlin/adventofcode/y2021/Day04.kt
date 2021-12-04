@@ -37,8 +37,10 @@ class Day04 {
             if (boards.size == 1 && boards.first().hasWon()) {
                 return lastCalled to boards.first()
             }
+
             boards.call(toCall.first())
-            val nextBoards = if(boards.size > 1)  boards.filter { !it.hasWon() } else { boards }
+            val nextBoards = boards.takeIf { it.size == 1 } ?: boards.filter { !it.hasWon() }
+
             return getLosingBoard(toCall.first(), toCall.drop(1), nextBoards)
         }
 
