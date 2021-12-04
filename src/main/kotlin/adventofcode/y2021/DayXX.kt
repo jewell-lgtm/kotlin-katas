@@ -1,10 +1,10 @@
 package adventofcode.y2021
 
 fun main() {
-    println(input.size)
+    println(puzzleInput.size)
 
 
 
 }
 
-private val input = getInput("Day01")
+private val puzzleInput = getInput("Day01")
