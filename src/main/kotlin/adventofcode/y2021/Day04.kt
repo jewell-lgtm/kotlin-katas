@@ -34,17 +34,12 @@ class Day04 {
         val (toCall, boards) = input
 
         tailrec fun getLosingBoard(lastCalled: Int, toCall: List<Int>, boards: List<Board>): Pair<Int, Board> {
-            if (boards.size == 1) {
-                return if (!boards.first().hasWon()) {
-                    boards.call(toCall.first())
-                    getLosingBoard(toCall.first(), toCall.drop(1), boards )
-                } else {
-                    lastCalled to boards.first()
-                }
+            if (boards.size == 1 && boards.first().hasWon()) {
+                return lastCalled to boards.first()
             }
-
             boards.call(toCall.first())
-            return getLosingBoard(toCall.first(), toCall.drop(1), boards.filter { !it.hasWon() })
+            val nextBoards = if(boards.size > 1)  boards.filter { !it.hasWon() } else { boards }
+            return getLosingBoard(toCall.first(), toCall.drop(1), nextBoards)
         }
 
 
