@@ -1,6 +1,6 @@
 package adventofcode.y2021
 
-import kotlin.math.sqrt
+import kotlin.math.sign
 
 fun main() {
     val day = Day05()
@@ -11,25 +11,21 @@ fun main() {
 }
 
 private class Day05 {
-
     fun example1(): Int = count2OrMore(parseLines(exampleInput).horizontalVertical())
     fun puzzle1(): Int = count2OrMore(parseLines(puzzleInput).horizontalVertical())
-    fun example2(): Int = exampleInput.size
-    fun puzzle2(): Int = puzzleInput.size
+    fun example2(): Int = count2OrMore(parseLines(exampleInput))
+    fun puzzle2(): Int = count2OrMore(parseLines(puzzleInput))
 
-    private fun List<Line>.horizontalVertical() = filter { it.a.x == it.b.y || it.a.y == it.b.y }
+
+    private fun List<Line>.horizontalVertical() = filter { it.a.x == it.b.x || it.a.y == it.b.y }
 
     private fun count2OrMore(lines: List<Line>): Int {
-        val assoc = grid(lines).associateWith { point ->
-            lines.count { line -> line.intersects(point) }
+        val counts = lines.flatMap { it.points() }.foldRight(mutableMapOf<Point, Int>()) { point, result ->
+            result[point] = result.getOrDefault(point, 0) + 1
+            result
         }
-        return assoc.count { it.value > 1 }
-    }
 
-    private fun grid(lines: List<Line>) = (0..lines.maxX()).flatMap { y ->
-        (0..lines.maxY()).map { x ->
-            Point(x, y)
-        }
+        return counts.values.count { it > 1 }
     }
 
     private fun parseLines(input: List<String>): List<Line> = input.map { lineStr ->
@@ -41,27 +37,21 @@ private class Day05 {
     }
 
     data class Point(val x: Int, val y: Int)
-    data class Line(val a: Point, val b: Point)
+    data class Line(val a: Point, val b: Point) {
+        fun points(): List<Point> {
 
-    private fun List<Line>.maxX(): Int = foldRight(-1) { line, acc -> maxOf(acc, maxOf(line.a.x, line.b.x)) }
-    private fun List<Line>.maxY(): Int = foldRight(-1) { line, acc -> maxOf(acc, maxOf(line.a.y, line.b.y)) }
+            tailrec fun points(acc: Set<Point>, curr: Point, dest: Point): Set<Point> {
+                if (curr == dest) return acc
 
-    private fun Line.intersects(point: Point): Boolean {
-//        if (point.x < minOf(a.x, b.x)) return false
-//        if (point.y < minOf(a.y, b.y)) return false
-//        if (point.x > maxOf(a.x, b.x)) return false
-//        if (point.y > maxOf(a.y, b.y)) return false
-        return point.distance(a) + point.distance(b) == a.distance(b)
+                val dx = (dest.x - curr.x).sign
+                val dy = (dest.y - curr.y).sign
+
+                return points(acc + listOf(curr), Point(curr.x + dx, curr.y + dy), dest)
+            }
+
+            return points(setOf(a, b), a, b).toList()
+        }
     }
-
-    private fun Point.distance(other: Point): Double {
-        val x1 = this.x.toDouble()
-        val x2 = other.x.toDouble()
-        val y1 = this.y.toDouble()
-        val y2 = other.y.toDouble()
-        return sqrt(((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1)))
-    }
-
 }
 
 
