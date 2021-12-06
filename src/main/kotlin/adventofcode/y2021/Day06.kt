@@ -23,20 +23,20 @@ private class Day06 {
     fun puzzle2(): Long = parseInput(puzzleInput).after(256).total()
 
 
-    fun parseInput(list: List<String>): Map<Long, Long> =
-        list.first().split(",").map { it.trim().toLong() }.foldRight(mutableMapOf<Long, Long>()) { i, acc ->
+    fun parseInput(list: List<String>): Map<Int, Long> =
+        list.first().split(",").map { it.trim().toInt() }.foldRight(mutableMapOf<Int, Long>()) { i, acc ->
             acc[i] = acc.getOrDefault(i, 0) + 1
             acc
         }.toSortedMap()
 
 
-    private fun Map<Long, Long>.after(generations: Long): Map<Long, Long> {
-        tailrec fun recursionForTheSakeOfIt(map: MutableMap<Long, Long>, generations: Long): Map<Long, Long> {
-            if (generations == 0.toLong()) return map
+    private fun Map<Int, Long>.after(generations: Int): Map<Int, Long> {
+        tailrec fun recursionForTheSakeOfIt(map: MutableMap<Int, Long>, generations: Int): Map<Int, Long> {
+            if (generations == 0) return map
 
 
             (-1..8).forEach { i ->
-                map[i.toLong()] = map.getOrDefault((i + 1).toLong(), 0.toLong())
+                map[i] = map.getOrDefault((i + 1), 0.toLong())
             }
             val respawns = map[-1]!!
             map[8] = respawns
@@ -50,7 +50,7 @@ private class Day06 {
     }
 
 
-    private fun Map<Long, Long>.total(): Long =
+    private fun <T>Map<T, Long>.total(): Long =
         values.sum()
 
 
