@@ -1,28 +1,8 @@
 package adventofcode.y2021
 
-import assertEquals
-
 fun main() {
     val day = Day19()
 
-    println(
-        assertEquals(
-            mapOf(
-                'a' to 'd',
-                'e' to 'b',
-                'a' to 'c',
-                'f' to 'd',
-                'g' to 'e',
-                'b' to 'f',
-                'c' to 'g',
-            ),
-            day.configuration(
-                listOf(
-                    "acedgfb", "cdfbe", "gcdfa", "fbcad", "dab", "cefabd", "cdfgeb", "eafb", "cagedb ab"
-                )
-            )
-        )
-    )
     println("Example 1 answer: ${day.example1()}")
     println("Part 1 answer: ${day.puzzle1()}")
     println("Example 2 answer: ${day.example2()}")
@@ -36,7 +16,8 @@ private class Day19 {
     fun example1(): Int = digitsUsingUniqueOutputValues(parseInput(exampleInput))
     fun puzzle1(): Int = digitsUsingUniqueOutputValues(parseInput(puzzleInput))
     fun example2(): Int = decodeOutputValues(parseInput(exampleInput))
-    fun puzzle2(): Int = -1
+    fun puzzle2(): Int = decodeOutputValues(parseInput(puzzleInput))
+
 
     fun parseInput(input: List<String>): List<PuzzleInput> =
         input.map { str -> str.split("|").map { it.trim().split(" ") }.toPair() }
@@ -47,48 +28,109 @@ private class Day19 {
     }
 
     fun decodeOutputValues(input: List<PuzzleInput>): Int =
-        input.fold(0) { acc, (input, output) -> acc + decodedOutputValue(input, output).sum() }
+        input.fold(0) { acc, (input, output) -> acc + decodeOutputValue(input, output) }
 
-    fun decodedOutputValue(input: List<String>, output: List<String>): List<Int> {
-        val result = mutableMapOf<Char, Int?>(
-            'a' to null,
-            'b' to null,
-            'c' to null,
-            'd' to null,
-            'f' to null,
-            'g' to null,
-        )
-        return listOf()
+    fun decodeOutputValue(input: List<String>, output: List<String>): Int {
+        val v = decodeOutputDigits(input, output).joinToString("").toInt()
+        println("v ${v}")
+        return v
     }
+
+    private fun decodeOutputDigits(
+        input: List<String>,
+        output: List<String>,
+    ) = decodedChars(configuration(input), output).map { decodeDigits[it]!! }
 
     fun configuration(input: List<String>): Map<Char, Char> {
-        val iinput = listOf("ab")
+        val cf = input.only { it.length == 2 }.toCharSet()
+        val acf = input.only { it.length == 3 }.toCharSet()
+        val bcdf = input.only { it.length == 4 }.toCharSet()
+        val abcdefg = input.only { it.length == 7 }.toCharSet()
 
-        return mapOf()
+        val a = acf - cf
+        val aeg = abcdefg - bcdf
+
+        val len6 = input.filter { it.length == 6 }.map { it.toCharSet() }
+        val cde = len6.map { abcdefg - it }.reduce { first, second -> first.union(second) }
+
+        val eg = aeg - a
+        val bfg = (abcdefg - cde) - a
+        val bf = bfg - eg
+
+
+        val b = bf - cf
+        val g = bfg - bf
+        val e = eg - g
+        val f = bf - b
+        val c = cf - f
+        val d = (bcdf - b) - cf
+
+        return mapOf(
+            a.only() to 'a',
+            b.only() to 'b',
+            c.only() to 'c',
+            d.only() to 'd',
+            e.only() to 'e',
+            f.only() to 'f',
+            g.only() to 'g',
+        )
     }
 
-    private fun possibleConfiguration(possible: Map<Char, Set<Char>>): Set<Char> {
-        return setOf()
-    }
+    fun decodedChars(config: Map<Char, Char>, originalOutput: List<String>): List<Set<Char>> =
+        originalOutput.map {
+            it.toList().map { char -> config[char]!! }.toSortedSet()
+        }
+
 
     val normalConfig = mapOf(
-        0 to "abcefg",
-        1 to "cf",
-        2 to "acdeg",
-        3 to "acdfg",
-        4 to "bcdf",
-        5 to "abdfg",
-        6 to "abdefg",
-        7 to "acf",
-        8 to "abcdefg",
-        9 to "abcdfg"
+        0 to "abcefg".toCharSet(), // 6 // missing d
+        1 to "cf".toCharSet(), // 2
+        2 to "acdeg".toCharSet(), // 5
+        3 to "acdfg".toCharSet(), // 5
+        4 to "bcdf".toCharSet(), // 4
+        5 to "abdfg".toCharSet(), // 5
+        6 to "abdefg".toCharSet(), // 6 // missing c
+        7 to "acf".toCharSet(), // 3
+        8 to "abcdefg".toCharSet(), // 7
+        9 to "abcdfg".toCharSet() // 6 // missing e
     )
 
-    val uniqueNoSegments = normalConfig.mapValues { it.value.length }.filterKeys { listOf(1, 4, 7, 8).contains(it) }
+    val decodeDigits = mapOf(
+          "abcefg".toCharSet() to 0,
+          "cf".toCharSet() to 1,
+          "acdeg".toCharSet() to 2,
+          "acdfg".toCharSet() to 3,
+          "bcdf".toCharSet() to 4,
+          "abdfg".toCharSet() to 5,
+          "abdefg".toCharSet() to 6,
+          "acf".toCharSet() to 7,
+          "abcdefg".toCharSet() to 8,
+          "abcdfg".toCharSet() to 9,
+    )
+
+    val uniqueNoSegments = normalConfig.mapValues { it.value.size }.filterKeys { listOf(1, 4, 7, 8).contains(it) }
+}
+
+private fun <E> Set<E>.only(): E {
+    if (size != 1) {
+        error("$size != 1")
+    }
+    return first()
+}
+
+private fun <E> List<E>.only(function: (E) -> Boolean): E {
+    val f = filter(function)
+    if (f.size != 1) {
+        error("f.size ${f.size}")
+    }
+    return f.first()
 }
 
 
 private fun <E> List<E>.toPair(): Pair<E, E> = Pair(this[0], this[1])
+private fun String.toCharList(): List<Char> = map { it }
+private fun String.toCharSet(): Set<Char> = toCharList().toSet()
+
 
 private val puzzleInput = getInput("Day08")
 private val exampleInput = """

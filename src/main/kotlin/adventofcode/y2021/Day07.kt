@@ -26,7 +26,7 @@ private class Day07 {
         }
 
     private val memo = mutableMapOf<Int, Int>()
-    private val calcFuel: DistanceFn = { big, small ->
+      val calcFuel: DistanceFn = { big, small ->
         // works fine without implementing the tail recursive version
         fun calcFuel(i: Int): Int {
             if (!memo.containsKey(i)) {
