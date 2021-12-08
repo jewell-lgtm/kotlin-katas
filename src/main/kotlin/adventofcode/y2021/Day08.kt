@@ -7,9 +7,8 @@ fun main() {
     println("Part 1 answer: ${day.puzzle1()}")
     println("Example 2 answer: ${day.example2()}")
     println("Part 2 answer: ${day.puzzle2()}")
-
-
 }
+
 private typealias PuzzleInput = Pair<List<String>, List<String>>
 
 private class Day19 {
@@ -48,18 +47,14 @@ private class Day19 {
         // 6 segment numbers are all missing exactly one of c d or e
         val cde = len6.map { abcdefg - it }.reduce { first, second -> first.union(second) }
 
-        val bfg = (abcdefg - cde) - (acf - cf)
-        val eg = (abcdefg - bcdf) - acf
-        val bf = bfg - eg
-        val cd = bcdf - bf
-
         val a = acf - cf
-        val b = bf - cf
-        val g = bfg - bf
-        val e = eg - g
-        val f = bf - b
+        val b = bcdf - cde - cf
+        val f = cf - cde
+        val d = bcdf - cf - b
+        val g = abcdefg - bcdf - acf - cde
+
         val c = cf - f
-        val d = cd - c
+        val e = cde - c - d
 
         return mapOf(
             a.only() to 'a',
