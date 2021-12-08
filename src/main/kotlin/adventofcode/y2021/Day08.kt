@@ -48,12 +48,12 @@ private class Day19 {
         // 6 segment numbers are all missing exactly one of c d or e
         val cde = len6.map { abcdefg - it }.reduce { first, second -> first.union(second) }
 
-        val a = acf - cf
-        val eg = (abcdefg - bcdf) - a
-        val bfg = (abcdefg - cde) - a
+        val bfg = (abcdefg - cde) - (acf - cf)
+        val eg = (abcdefg - bcdf) - acf
         val bf = bfg - eg
         val cd = bcdf - bf
 
+        val a = acf - cf
         val b = bf - cf
         val g = bfg - bf
         val e = eg - g
@@ -92,16 +92,16 @@ private class Day19 {
     )
 
     val decodeDigits = mapOf(
-          "abcefg".toCharSet() to 0,
-          "cf".toCharSet() to 1,
-          "acdeg".toCharSet() to 2,
-          "acdfg".toCharSet() to 3,
-          "bcdf".toCharSet() to 4,
-          "abdfg".toCharSet() to 5,
-          "abdefg".toCharSet() to 6,
-          "acf".toCharSet() to 7,
-          "abcdefg".toCharSet() to 8,
-          "abcdfg".toCharSet() to 9,
+        "abcefg".toCharSet() to 0,
+        "cf".toCharSet() to 1,
+        "acdeg".toCharSet() to 2,
+        "acdfg".toCharSet() to 3,
+        "bcdf".toCharSet() to 4,
+        "abdfg".toCharSet() to 5,
+        "abdefg".toCharSet() to 6,
+        "acf".toCharSet() to 7,
+        "abcdefg".toCharSet() to 8,
+        "abcdfg".toCharSet() to 9,
     )
 
     val uniqueNoSegments = normalConfig.mapValues { it.value.size }.filterKeys { listOf(1, 4, 7, 8).contains(it) }
