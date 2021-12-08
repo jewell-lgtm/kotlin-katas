@@ -45,21 +45,21 @@ private class Day19 {
         val abcdefg = input.only { it.length == 7 }.toCharSet()
 
         val len6 = input.filter { it.length == 6 }.map { it.toCharSet() }
+        // 6 segment numbers are all missing exactly one of c d or e
         val cde = len6.map { abcdefg - it }.reduce { first, second -> first.union(second) }
 
         val a = acf - cf
-        val aeg = abcdefg - bcdf
-        val eg = aeg - a
+        val eg = (abcdefg - bcdf) - a
         val bfg = (abcdefg - cde) - a
         val bf = bfg - eg
-
+        val cd = bcdf - bf
 
         val b = bf - cf
         val g = bfg - bf
         val e = eg - g
         val f = bf - b
         val c = cf - f
-        val d = (bcdf - b) - cf
+        val d = cd - c
 
         return mapOf(
             a.only() to 'a',
