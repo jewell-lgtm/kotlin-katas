@@ -30,11 +30,8 @@ private class Day19 {
     fun decodeOutputValues(input: List<PuzzleInput>): Int =
         input.fold(0) { acc, (input, output) -> acc + decodeOutputValue(input, output) }
 
-    fun decodeOutputValue(input: List<String>, output: List<String>): Int {
-        val v = decodeOutputDigits(input, output).joinToString("").toInt()
-        println("v ${v}")
-        return v
-    }
+    fun decodeOutputValue(input: List<String>, output: List<String>): Int =
+        decodeOutputDigits(input, output).joinToString("").toInt()
 
     private fun decodeOutputDigits(
         input: List<String>,
