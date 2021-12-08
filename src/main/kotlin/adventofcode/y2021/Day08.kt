@@ -44,12 +44,11 @@ private class Day19 {
         val bcdf = input.only { it.length == 4 }.toCharSet()
         val abcdefg = input.only { it.length == 7 }.toCharSet()
 
-        val a = acf - cf
-        val aeg = abcdefg - bcdf
-
         val len6 = input.filter { it.length == 6 }.map { it.toCharSet() }
         val cde = len6.map { abcdefg - it }.reduce { first, second -> first.union(second) }
 
+        val a = acf - cf
+        val aeg = abcdefg - bcdf
         val eg = aeg - a
         val bfg = (abcdefg - cde) - a
         val bf = bfg - eg
