@@ -1,7 +1,9 @@
 package adventofcode.y2021
 
 fun main() {
-    val day = Day19()
+
+    val a = true
+    val b = false
 
     println("Example 1 answer: ${day.example1()}")
     println("Part 1 answer: ${day.puzzle1()}")
