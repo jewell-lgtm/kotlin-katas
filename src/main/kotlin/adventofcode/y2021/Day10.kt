@@ -15,8 +15,8 @@ fun main() {
 private class Day10 {
     fun example1(): Int = syntaxScores(parseInput(exampleInput))
     fun puzzle1(): Int = syntaxScores(parseInput(puzzleInput))
-    fun example2(): Long = completeScores(parseInput(exampleInput2).filter { !it.isCorrupted() })
-    fun puzzle2(): Long = completeScores(parseInput(puzzleInput).filter { !it.isCorrupted() })
+    fun example2(): Long = completeScores(parseInput(exampleInput2).filter { it.isNotCorrupted() })
+    fun puzzle2(): Long = completeScores(parseInput(puzzleInput).filter { it.isNotCorrupted() })
 
     private fun parseInput(input: List<String>): List<CharArray> {
         return input.map { it.toCharArray() }
@@ -25,7 +25,12 @@ private class Day10 {
     data class ValidatorResult(val syntaxScore: Int, val completeString: String)
 
     private fun syntaxScores(input: List<CharArray>): Int = input.sumOf { validatorResult(it).syntaxScore }
+
+    private fun completeScores(input: List<CharArray>): Long =
+        input.map { scoreString(validatorResult(it).completeString) }.sorted().middle()
+
     private fun CharArray.isCorrupted(): Boolean = validatorResult(this).syntaxScore != 0
+    private fun CharArray.isNotCorrupted(): Boolean = !isCorrupted()
 
 
     val open = "([{<".toCharArray()
@@ -63,19 +68,17 @@ private class Day10 {
             tail = tail.drop(1)
         }
 
-        val str = StringBuilder()
-        while (brackets.isNotEmpty()) {
-            val bracket = brackets.pop()
-            val closeBracket = mapL[bracket]
-            str.append(closeBracket)
-
+        val str = StringBuilder().apply {
+            while (brackets.isNotEmpty()) {
+                val bracket = brackets.pop()
+                val closeBracket = mapL[bracket]
+                append(closeBracket)
+            }
         }
+
         return ValidatorResult(0, str.toString())
     }
 
-
-    private fun completeScores(input: List<CharArray>): Long =
-        input.map { scoreString(validatorResult(it).completeString) }.sorted().middle()
 
     val scores = listOf(')' to 1, ']' to 2, '}' to 3, '>' to 4).toMap()
     private fun scoreString(str: String) =
