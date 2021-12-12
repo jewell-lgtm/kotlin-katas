@@ -31,7 +31,7 @@ private class Day10 {
     val mapL = open.zip(close).toMap()
     val mapR = close.zip(open).toMap()
     val invalidCharScore = mapOf(')' to 3, ']' to 57, '}' to 1197, '>' to 25137)
-    val incompleteScore = listOf(')' to 1, ']' to 2, '}' to 3, '>' to 4).toMap()
+    val incompleteScore = mapOf(')' to 1, ']' to 2, '}' to 3, '>' to 4)
 
     private fun validatorResult(input: CharArray): ValidatorResult {
         val brackets = Stack<Char>()
@@ -71,7 +71,11 @@ private class Day10 {
     private fun Stack<Char>.canPop() = isNotEmpty()
 
 
-    data class ValidatorResult(val syntaxScore: Int, val autoCompleteString: String)
+    data class ValidatorResult(val syntaxScore: Int, val autoCompleteString: String) {
+        companion object {
+
+        }
+    }
 
     private fun ValidatorResult.stringScore(): Long {
         return autoCompleteString.fold(0L) { acc, char -> (acc * 5) + incompleteScore[char]!! }
