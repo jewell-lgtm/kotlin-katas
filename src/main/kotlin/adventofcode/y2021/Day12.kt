@@ -39,6 +39,7 @@ private class Day12(input: List<String>, val smallCaveMax: Int = 1) {
                 val newVisited = visited.toMutableMap()
                 newVisited[connection] = (visited[connection] ?: 0) + 1
                 val newPath = path + connection
+//                println("path ${path}")
                 result = countPathsUntil(connection, to, result, newVisited, newPath)
             }
         }
@@ -51,26 +52,21 @@ private class Day12(input: List<String>, val smallCaveMax: Int = 1) {
         node: Node
     ): Boolean {
         if (node.isSmall) {
-            if (node.isStart) return false
-            if (node.isEnd) return !visited.containsKey(node)
+            if (node.name == "start") return false
+            if (node.name == "end") return !visited.containsKey(node)
             val visitCount = visited.getOrDefault(node, 0)
-            val smallVisited = visited.filter { !it.key.isStart && !it.key.isEnd && it.key.isSmall }
-            val mostVisitedSmall =
-                smallVisited.maxByOrNull { it.value }?.value
-                    ?: 0
+            val smallVisited = visited.filterKeys { it != start && it != end && it.isSmall }
+            val mostVisitedSmall = smallVisited.maxByOrNull { it.value }?.value ?: 0
             return mostVisitedSmall < smallCaveMax || visitCount == 0
         }
         return true
     }
 
     class Node(val name: String, val connections: MutableSet<Node>) {
-        val isStart = name == "start"
-        val isEnd = name == "end"
         val isSmall = name[0].isLowerCase()
-        val isBig = !isSmall
 
         override fun toString(): String {
-            return "$name"
+            return name
 //            return "$name -> [${connections.joinToString(", ") { it.name }}]"
         }
     }
