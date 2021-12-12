@@ -16,7 +16,7 @@ private class Day12(input: List<String>, val smallCaveMax: Int = 1) {
     val start = nodes["start"]!!
     val end = nodes["end"]!!
 
-    fun countPaths() = countPathsUntil(start, end, 0, mapOf(start to 1), listOf(start))
+    fun countPaths() = countPathsUntil(0, end, start, mapOf(start to 1), listOf(start))
 
     private fun parseInput(input: List<String>): Map<String, Node> {
         val nodes = mutableMapOf<String, Node>()
@@ -31,20 +31,21 @@ private class Day12(input: List<String>, val smallCaveMax: Int = 1) {
         return nodes
     }
 
-    fun countPathsUntil(from: Node, to: Node, i: Int, visited: Map<Node, Int>, path: List<Node>): Int {
-        if (from == to) return i + 1
-        var result = i
+    fun countPathsUntil(countPaths: Int, to: Node, from: Node, visited: Map<Node, Int>, path: List<Node>): Int {
+        if (from == to) return countPaths + 1
+        var newCount = countPaths
+
         from.connections.forEach { connection ->
             if (canVisit(visited, connection)) {
                 val newVisited = visited.toMutableMap()
                 newVisited[connection] = (visited[connection] ?: 0) + 1
                 val newPath = path + connection
-//                println("path ${path}")
-                result = countPathsUntil(connection, to, result, newVisited, newPath)
+                // println("path ${path}")
+                newCount = countPathsUntil(newCount, to, connection, newVisited, newPath)
             }
         }
 
-        return result
+        return newCount
     }
 
     private fun canVisit(
@@ -52,8 +53,8 @@ private class Day12(input: List<String>, val smallCaveMax: Int = 1) {
         node: Node
     ): Boolean {
         if (node.isSmall) {
-            if (node.name == "start") return false
-            if (node.name == "end") return !visited.containsKey(node)
+            if (node == start) return false
+            if (node == end) return !visited.containsKey(node)
             val visitCount = visited.getOrDefault(node, 0)
             val smallVisited = visited.filterKeys { it != start && it != end && it.isSmall }
             val mostVisitedSmall = smallVisited.maxByOrNull { it.value }?.value ?: 0
