@@ -58,7 +58,8 @@ private class Day12(input: List<String>, val smallCaveMax: Int = 1) {
             val visitCount = visited.getOrDefault(node, 0)
             val smallVisited = visited.filterKeys { it != start && it != end && it.isSmall }
             val mostVisitedSmall = smallVisited.maxByOrNull { it.value }?.value ?: 0
-            return mostVisitedSmall < smallCaveMax || visitCount == 0
+
+            return visitCount == 0 || mostVisitedSmall < smallCaveMax
         }
         return true
     }
