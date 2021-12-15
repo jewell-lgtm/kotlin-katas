@@ -1,12 +1,18 @@
 package adventofcode.y2021
 
+import kotlin.system.measureTimeMillis
+
 fun main() {
     val day = Day15()
 
     println("Example 1 answer: ${day.example1()}")
     println("Part 1 answer: ${day.puzzle1()}")
     println("Example 2 answer: ${day.example2()}")
-    println("Part 2 answer: ${day.puzzle2()}")
+    var part2: Int
+    val time2Took = measureTimeMillis {
+        part2 = day.puzzle2()
+    }
+    println("Part 2 answer: $part2 (${time2Took}ms)")
 }
 
 private class Day15 {
