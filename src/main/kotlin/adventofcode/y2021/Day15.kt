@@ -2,89 +2,106 @@ package adventofcode.y2021
 
 fun main() {
     val day = Day15()
+
     println("Example 1 answer: ${day.example1()}")
     println("Part 1 answer: ${day.puzzle1()}")
     println("Example 2 answer: ${day.example2()}")
     println("Part 2 answer: ${day.puzzle2()}")
-
-
 }
 
 private class Day15 {
-    fun example1() = parseInput(exampleInput).bestPath()
-    fun puzzle1() = parseInput(puzzleInput).bestPath()
+    fun example1() = parseInput(exampleInput, 1).bestPath()
+    fun puzzle1() = parseInput(puzzleInput, 1).bestPath()
+    fun example2() = parseInput(exampleInput, 5).bestPath()
+    fun puzzle2() = parseInput(puzzleInput, 5).bestPath()
 
-    fun example2() = exampleInput.size
-    fun puzzle2() = puzzleInput.size
 
-
-    fun parseInput(input: List<String>): Grid {
+    fun parseInput(input: List<String>, mult: Int): Grid {
         val h = input.size
         val w = input.first().length
-        val cells = input
-            .flatMapIndexed { y, line ->
 
+        val cellValues = input
+            .flatMapIndexed { y, line ->
                 line.split("").filter { it.isNotEmpty() }
                     .mapIndexedNotNull { x, digit ->
-                        digit.toIntOrNull()?.let { Pair(Pair(y, x), digit.toInt()) }
+                        digit.toIntOrNull()?.let { Pair(Point(y, x), digit.toInt()) }
                     }
+            }.toMap()
+
+
+        return Grid(h * mult, w * mult) { point ->
+            if (point.y < h && point.x < w) {
+                cellValues[point]!!
+            } else {
+                val plus = (point.y / h) + (point.x / w)
+                val destPoint = Point(point.y % h, point.x % w)
+                val destVal = cellValues[destPoint]!!
+
+                (destVal - 1 + plus) % 9 + 1
             }
-        return Grid(h, w, cells)
+        }
     }
 
-    class Grid(val h: Int, val w: Int, cellDescriptor: List<Pair<Pair<Int, Int>, Int>>) {
-        val cells: Map<Point, Int> =
-            cellDescriptor.associate { pair -> Point(h, w, pair.first.first, pair.first.second) to pair.second }
+    class Grid(val h: Int, val w: Int, val riskLevelAt: (Point) -> Int) {
+        val points = (0 until h).flatMap { y -> (0 until w).map { x -> Point(y, x) } }
+        val start = Point(0, 0)
+        val goal = Point(h - 1, w - 1)
 
         fun bestPath(): Int {
-            val memo = mutableMapOf<Point, Int>()
-            // fastest way to anywhere along the x or y is in a straight line
-            var totalCost = 0
-            (0 until h).map { Point(h, w, it, 0) }.forEach { point ->
-                totalCost += cells[point]!!
-                memo[point] = totalCost
-            }
-            totalCost = 0
-            (0 until w).map { Point(h, w, 0, it) }.forEach { point ->
-                totalCost += cells[point]!!
-                memo[point] = totalCost
-            }
-            // best path to each point (from top left is best of u or l)
-            (1 until h).forEach { y ->
-                (1 until w).forEach { x ->
-                    val point = Point(h, w, y, x)
-                    memo[point] = minOf(memo[point.up()]!!, memo[point.left()]!!) + cells[point]!!
-                }
-            }
+            val bests = points.associateWith { if (it == start) 0 else Int.MAX_VALUE }.toMutableMap()
+            fun Set<Point>.best(): Point = minByOrNull { bests[it]!! }!!
 
-            return memo[Point(h, w, h - 1, w - 1)]!! - memo[Point(h, w, 0, 0)]!!
+            val toCheck = mutableSetOf(start)
+
+            while (toCheck.isNotEmpty()) {
+                val node = toCheck.best()
+                toCheck.remove(node)
+                val currentNodeBest = bests[node]!!
+
+                if (node == goal) {
+                    return bests[node]!!
+                }
+
+                node.neighbors().forEach { neighbor ->
+                    val costToVisit = currentNodeBest + riskLevelAt(neighbor)
+                    if (costToVisit < bests[neighbor]!!) {
+                        bests[neighbor] = costToVisit
+                        toCheck.add(neighbor)
+                    }
+                }
+
+            }
+            error("didn't get to the end")
         }
 
+        private fun Point.neighbors(): Set<Point> =
+            listOf(up(), left(), right(), down())
+                .filter { it.isValid() }
+                .toSet()
+        fun Point.isValid() = y in 0 until h && x in 0 until w
 
-        val head = Point(h, w, 0, 0)
 
         fun printGrid() {
             (0 until h).forEach { y ->
                 (0 until w).forEach { x ->
-
-                    print(" ${cells[Point(h, w, y, x)]} ")
+                    print("${riskLevelAt(Point(y, x))}")
                 }
                 print("\n")
             }
             print("\n")
         }
-
-
-        fun i(x: Int, y: Int) = x + w * y
     }
 
-    data class Point(val h: Int, val w: Int, val y: Int, val x: Int) {
-        fun up(): Point = Point(h, w, y - 1, x)
-        fun left(): Point = Point(h, w, y, x - 1)
+    data class Point(val y: Int, val x: Int) {
+        fun up() = Point(y - 1, x)
+        fun right() = Point(y, x + 1)
+        fun down() = Point(y + 1, x)
+        fun left() = Point(y, x - 1)
     }
-
-
 }
+
+
+private fun <E> MutableSet<E>.pop(): E = first().also { this.remove(it) }
 
 
 private val puzzleInput = getInput("Day15")
