@@ -65,6 +65,7 @@ private class Day15 {
                 val currentNodeBest = bests[node]!!
 
                 if (node == goal) {
+                    // RETURN IS HERE
                     return bests[node]!!
                 }
 
