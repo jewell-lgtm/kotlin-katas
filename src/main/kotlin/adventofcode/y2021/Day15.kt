@@ -26,7 +26,7 @@ private class Day15 {
         val h = input.size
         val w = input.first().length
 
-        val cellValues = input
+        val originalCellValues = input
             .flatMapIndexed { y, line ->
                 line.split("").filter { it.isNotEmpty() }
                     .mapIndexedNotNull { x, digit ->
@@ -36,15 +36,11 @@ private class Day15 {
 
 
         return Grid(h * mult, w * mult) { point ->
-            if (point.y < h && point.x < w) {
-                cellValues[point]!!
-            } else {
-                val plus = (point.y / h) + (point.x / w)
-                val destPoint = Point(point.y % h, point.x % w)
-                val destVal = cellValues[destPoint]!!
+            val plus = (point.y / h) + (point.x / w)
+            val destPoint = Point(point.y % h, point.x % w)
+            val destVal = originalCellValues[destPoint]!!
 
-                (destVal - 1 + plus) % 9 + 1
-            }
+            (destVal - 1 + plus) % 9 + 1
         }
     }
 
@@ -85,6 +81,7 @@ private class Day15 {
             listOf(up(), left(), right(), down())
                 .filter { it.isValid() }
                 .toSet()
+
         fun Point.isValid() = y in 0 until h && x in 0 until w
 
 
