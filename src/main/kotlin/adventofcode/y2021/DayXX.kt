@@ -12,10 +12,10 @@ fun main() {
 }
 
 private class DayXX {
-    fun example1 (): Int = exampleInput.size
-    fun puzzle1 (): Int = puzzleInput.size
-    fun example2 (): Int = exampleInput.size
-    fun puzzle2 (): Int = puzzleInput.size
+    fun example1 () = exampleInput.size
+    fun puzzle1 () = puzzleInput.size
+    fun example2 () = exampleInput.size
+    fun puzzle2 () = puzzleInput.size
 }
 
 private val puzzleInput = getInput("Day01")
