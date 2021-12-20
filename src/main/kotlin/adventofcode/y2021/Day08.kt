@@ -1,7 +1,7 @@
 package adventofcode.y2021
 
 fun main() {
-    val day = Day19()
+    val day = Day08()
 
     println("Example 1 answer: ${day.example1()}")
     println("Part 1 answer: ${day.puzzle1()}")
@@ -11,7 +11,7 @@ fun main() {
 
 private typealias PuzzleInput = Pair<List<String>, List<String>>
 
-private class Day19 {
+private class Day08 {
     fun example1(): Int = digitsUsingUniqueOutputValues(parseInput(exampleInput))
     fun puzzle1(): Int = digitsUsingUniqueOutputValues(parseInput(puzzleInput))
     fun example2(): Int = decodeOutputValues(parseInput(exampleInput))
